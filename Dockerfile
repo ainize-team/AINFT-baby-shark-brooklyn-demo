@@ -3,8 +3,8 @@ FROM python:3.8
 COPY . /app
 WORKDIR /app
  
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN pip install -r requirements.txt
 
-EXPOSE 8051
+EXPOSE 8501
 
-CMD ["opyrator", "launch-ui", "app:babyshark_brooklyn_ainft_chat"] 
+CMD ["streamlit", "run", "app.py"]

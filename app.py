@@ -1,37 +1,38 @@
 import json
 import requests
-from pydantic import BaseModel, Field
+import streamlit as st
 
-endpoint_url = 'https://develop-ainft-baby-shark-brooklyn-ainize-team.endpoint.ainize.ai/chat'
-
-class ChatInput(BaseModel):
-    input_text: str = Field(
-        ...,
-        title="Input Text",
-        description="Input text to chat.",
-        max_length=9999,
-    )
+endpoint_url = 'https://develop-ainft-baby-shark-brooklyn-ainize-team.endpoint.ainize.ai'
 
 
-class ChatOutput(BaseModel):
-    output: str
+twitter_id = st.sidebar.text_input("Twiter User ID")
+twitter_update_btn = st.sidebar.button("Update")
+
+chat_input = st.text_area("Input Text")
+chat_btn = st.button("Chat")
+
+chat_output = st.text("")
 
 
-def get_output(input_text: str) -> str:
+if twitter_update_btn:
     try:
         params = {
-            'text': input_text
+            'screen_name': twitter_id,
         }
-        response = requests.get(endpoint_url, params=params)
+        output = requests.get(f'{endpoint_url}/makeTwitterData', params=params)
+    except Exception as e:
+        output = f'Endpoint API Internal error occurs : {e}'
+
+
+if chat_btn:
+    try:
+        params = {
+            'text': chat_input,
+            'twitter_id': twitter_id
+        }
+        response = requests.get(f'{endpoint_url}/chat', params=params)
         output = response.json()['message']
     except Exception as e:
         output = f'Endpoint API Internal error occurs : {e}'
 
-    return output
-
-
-def babyshark_brooklyn_ainft_chat(input: ChatInput) -> ChatOutput:
-    input_text = input.input_text  # input_text
-    output_text = get_output(input_text)
-
-    return ChatOutput(output=output_text)
+    chat_output.text(output)
